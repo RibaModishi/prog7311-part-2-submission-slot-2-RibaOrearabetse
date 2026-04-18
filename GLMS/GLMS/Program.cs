@@ -1,4 +1,6 @@
+using GLMS.Data;
 using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.EntityFrameworkCore;
 
 namespace GLMS
 {
@@ -8,7 +10,10 @@ namespace GLMS
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // hook up ef core + sql server - connection string is in appsettings.json under ConnectionStrings:DefaultConnection
+            builder.Services.AddDbContext<GlmsDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
