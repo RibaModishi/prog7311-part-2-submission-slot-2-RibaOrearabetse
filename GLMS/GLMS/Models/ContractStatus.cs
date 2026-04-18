@@ -1,6 +1,6 @@
 namespace GLMS.Models;
 
-// contract "mood" for the POE - enum saves as 0,1,2,3 in sql (easier than storing text)
+// Lifecycle state of a client agreement. Persisted as int (0–3) in SQL via Entity Framework.
 public enum ContractStatus
 {
     Draft = 0,     // still busy filling in details
