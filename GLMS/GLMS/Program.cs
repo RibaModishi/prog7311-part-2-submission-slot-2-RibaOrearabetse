@@ -14,6 +14,8 @@ namespace GLMS
             builder.Services.AddDbContext<GlmsDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddScoped<Services.ServiceRequestWorkflowService>();
+
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
