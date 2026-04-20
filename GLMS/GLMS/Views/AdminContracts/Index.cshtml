@@ -1,0 +1,51 @@
+﻿@model IReadOnlyList<Contract>
+@{
+    ViewData["Title"] = "Admin — search contracts";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select" asp-items="ViewBag.Status"></select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">From</label>
+        <input type="date" name="from" class="form-control" value="@ViewBag.From" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">To</label>
+        <input type="date" name="to" class="form-control" value="@ViewBag.To" />
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary me-2">Search</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Clear</a>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Client</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Status</th>
+            <th>Service level</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.ContractId</td>
+                <td>@c.Client?.Name</td>
+                <td>@c.StartDate.ToString("d")</td>
+                <td>@c.EndDate.ToString("d")</td>
+                <td>@c.Status</td>
+                <td>@c.ServiceLevel</td>
+            </tr>
+        }
+    </tbody>
+</table>

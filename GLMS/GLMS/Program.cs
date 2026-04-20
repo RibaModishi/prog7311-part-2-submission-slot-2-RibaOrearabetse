@@ -15,6 +15,7 @@ namespace GLMS
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<Services.ServiceRequestWorkflowService>();
+            builder.Services.AddScoped<Services.ContractQueryService>();
 
             builder.Services.AddControllersWithViews();
 

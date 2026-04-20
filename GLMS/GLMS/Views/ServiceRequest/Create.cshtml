@@ -1,0 +1,45 @@
+﻿@model CreateServiceRequestViewModel
+@{
+    ViewData["Title"] = "New service request";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@* after redirect from successful save TempData has one message then it clears *@
+@if (TempData["Message"] is string msg)
+{
+    <div class="alert alert-success">@msg</div>
+}
+
+@* ModelOnly = show errors that arent tied to one field (e.g. workflow exception message) *@
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+@* post goes to ServiceRequestController.Create POST - must match antiforgery token *@
+<form asp-controller="ServiceRequest" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="ContractId" class="form-label"></label>
+        @* asp-items comes from controller ViewBag.ContractId SelectList *@
+        <select asp-for="ContractId" asp-items="ViewBag.ContractId" class="form-select"></select>
+        <span asp-validation-for="ContractId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Cost" class="form-label"></label>
+        <input asp-for="Cost" class="form-control" />
+        <span asp-validation-for="Cost" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

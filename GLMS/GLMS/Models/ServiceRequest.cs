@@ -14,6 +14,4 @@ public class ServiceRequest
     public decimal Cost { get; set; }
 
     public ServiceRequestStatus Status { get; set; }
-
-    // TODO when i build the create page: block save if parent contract is Expired or OnHold (brief rule)
 }

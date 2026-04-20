@@ -31,7 +31,34 @@ namespace GLMS.Services
             DateTime? rangeEnd
             )
         {
-            IQueryable<Contract> q = 
+            IQueryable<Contract> q = _db.Contracts
+                .Include(c => c.Client);
+
+            if (status.HasValue)
+            q = q.Where(c => c.Status == status.Value);
+
+            if (rangeStart.HasValue && rangeEnd.HasValue)
+            {
+                var start = rangeStart.Value.Date;
+                var end = rangeEnd.Value.Date;
+
+                //Overlap: contract active at any point in the range
+                q = q.Where(c => c.StartDate.Date <= end && c.EndDate.Date >= start);
+
+                //If brief meant "Contracts whose StartDate falls in the range" instead of "Contracts active at any point in the range", use this:
+                // q = q.Where(c => c.StartDate.Date >= start && c.StartDate.Date <= end);
+            }
+            else if (rangeStart.HasValue)
+            {
+                var start = rangeStart.Value.Date;
+                q = q.Where(c=> c.EndDate.Date >= start);
+            }
+            else if (rangeEnd.HasValue)
+            {
+                var end = rangeEnd.Value.Date;
+                q = q.Where(c => c.StartDate.Date <= end);
+            }
+            return q.OrderByDescending(c => c.StartDate);
         }
     }
 }
