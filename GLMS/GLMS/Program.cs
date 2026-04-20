@@ -17,6 +17,13 @@ namespace GLMS
             builder.Services.AddScoped<Services.ServiceRequestWorkflowService>();
             builder.Services.AddScoped<Services.ContractQueryService>();
 
+            // Section 3 (Frankfurter / HttpClient): assisted by DeepSeek AI — i reviewed. Typed client + BaseAddress + timeout.
+            builder.Services.AddHttpClient<Services.UsdZarExchangeService>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.frankfurter.app/");
+                client.Timeout = TimeSpan.FromSeconds(20);
+            });
+
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)

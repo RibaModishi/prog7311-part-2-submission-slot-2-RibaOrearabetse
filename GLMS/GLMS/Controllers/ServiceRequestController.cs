@@ -7,90 +7,104 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace GLMS.Controllers
+namespace GLMS.Controllers;
+
+// External API (section 3) flow: assisted by DeepSeek AI — i reviewed and integrated it.
+[Authorize]
+public class ServiceRequestController : Controller
 {
-    // i split this from HomeController - anything about "logistics requests" lives here
-    // [Authorize] = must be logged in (negotiate/windows auth in my case) or i get bounced
-    [Authorize]
-    public class ServiceRequestController : Controller
+    private readonly GlmsDbContext _db;
+    private readonly ServiceRequestWorkflowService _workflow;
+    private readonly UsdZarExchangeService _fx;
+
+    public ServiceRequestController(
+        GlmsDbContext db,
+        ServiceRequestWorkflowService workflow,
+        UsdZarExchangeService fx)
     {
-        // db = talk to sql tables, workflow = my brief rule checker (expired/on hold contracts)
-        private readonly GlmsDbContext _db;
-        private readonly ServiceRequestWorkflowService _workflow;
+        _db = db;
+        _workflow = workflow;
+        _fx = fx;
+    }
 
-        // asp.net injects these automatically bc i registered them in Program.cs
-        public ServiceRequestController(GlmsDbContext db, ServiceRequestWorkflowService workflow)
-        {
-            _db = db;
-            _workflow = workflow;
-        }
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        var model = new CreateServiceRequestViewModel();
+        await PopulateContractDropdownAsync(model);
+        return View(model);
+    }
 
-        // when user clicks "New request" link its a GET - no form data yet, i just show the page
-        // url ends up as /ServiceRequest/Create (NOT ServiceRequests - class name is ServiceRequestController so drop Controller + no s on ServiceRequest)
-        [HttpGet]
-        public async Task<IActionResult> Create()
+    // JSON for the create page: JS calls here → server uses HttpClient (Frankfurter) → returns zarPerUsd
+    [HttpGet]
+    public async Task<IActionResult> UsdToZarRate(CancellationToken ct)
+    {
+        var rate = await _fx.GetUsdToZarAsync(ct);
+        if (rate is null)
+            return StatusCode(503, new { error = "Could not load USD/ZAR rate from external API." });
+
+        return Json(new { zarPerUsd = rate.Value });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CreateServiceRequestViewModel model)
+    {
+        if (!ModelState.IsValid)
         {
-            var model = new CreateServiceRequestViewModel();
             await PopulateContractDropdownAsync(model);
             return View(model);
         }
 
-        // when user hits Save on the form the browser does a POST with the fields - same method name Create but different signature = overload
-        [HttpPost]
-        [ValidateAntiForgeryToken] // stops random sites posting to my url - needs matching token in the form
-        public async Task<IActionResult> Create(CreateServiceRequestViewModel model)
+        try
         {
-            // data annotations on the view model (Required, StringLength etc) fill ModelState automatically
-            if (!ModelState.IsValid)
-            {
-                await PopulateContractDropdownAsync(model);
-                return View(model);
-            }
-
-            // brief rule: dont save if parent contract is Expired or OnHold - workflow throws if blocked
-            try
-            {
-                await _workflow.EnsureCanCreateServiceRequestAsync(model.ContractId);
-            }
-            catch (InvalidOperationException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                await PopulateContractDropdownAsync(model);
-                return View(model);
-            }
-
-            // map view model -> real entity that ef knows about, then insert row
-            var entity = new ServiceRequest
-            {
-                ContractId = model.ContractId,
-                Description = model.Description,
-                Cost = model.Cost,
-                Status = model.Status
-            };
-            _db.ServiceRequests.Add(entity);
-            await _db.SaveChangesAsync(); // this is when sql actually runs
-
-            TempData["Message"] = "Service request saved."; // flash message once after redirect
-            return RedirectToAction(nameof(Create)); // PRG pattern - stops double submit if user refreshes
+            await _workflow.EnsureCanCreateServiceRequestAsync(model.ContractId);
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            await PopulateContractDropdownAsync(model);
+            return View(model);
         }
 
-        // helper so i dont copy paste the dropdown code in GET and POST
-        // ViewBag is a dynamic bag i pass to the view - here i stick the SelectList for the <select>
-        private async Task PopulateContractDropdownAsync(CreateServiceRequestViewModel vm)
+        // Re-fetch rate on save (don’t rely only on browser preview)
+        var rate = await _fx.GetUsdToZarAsync(HttpContext.RequestAborted);
+        if (rate is null)
         {
-            var contracts = await _db.Contracts
-                .Include(c => c.Client) // need client name in the label text
-                .OrderByDescending(c => c.ContractId)
-                .Select(c => new
-                {
-                    c.ContractId,
-                    Label = "#" + c.ContractId + " — " + c.Client.Name + " (" + c.Status + ")"
-                })
-                .ToListAsync();
-
-            // if ContractId still 0 (first load) pre-pick first contract in list so dropdown isnt empty weirdness
-            vm.ContractId = vm.ContractId == 0 && contracts.Any() ? contracts.First().ContractId : vm.ContractId;
-            ViewBag.ContractId = new SelectList(contracts, "ContractId", "Label", vm.ContractId);
+            ModelState.AddModelError(string.Empty, "Exchange rate unavailable. Cannot convert USD to ZAR right now.");
+            await PopulateContractDropdownAsync(model);
+            return View(model);
         }
+
+        var costZar = Math.Round(model.CostUsd * rate.Value, 2, MidpointRounding.AwayFromZero);
+
+        var entity = new ServiceRequest
+        {
+            ContractId = model.ContractId,
+            Description = model.Description,
+            Cost = costZar,
+            Status = model.Status
+        };
+        _db.ServiceRequests.Add(entity);
+        await _db.SaveChangesAsync();
+
+        TempData["Message"] = "Service request saved.";
+        return RedirectToAction(nameof(Create));
+    }
+
+    private async Task PopulateContractDropdownAsync(CreateServiceRequestViewModel vm)
+    {
+        var contracts = await _db.Contracts
+            .Include(c => c.Client)
+            .OrderByDescending(c => c.ContractId)
+            .Select(c => new
+            {
+                c.ContractId,
+                Label = "#" + c.ContractId + " — " + c.Client.Name + " (" + c.Status + ")"
+            })
+            .ToListAsync();
+
+        vm.ContractId = vm.ContractId == 0 && contracts.Any() ? contracts.First().ContractId : vm.ContractId;
+        ViewBag.ContractId = new SelectList(contracts, "ContractId", "Label", vm.ContractId);
     }
 }

@@ -3,24 +3,22 @@
     ViewData["Title"] = "New service request";
 }
 
+@* External API section (USD preview + server save): assisted by DeepSeek AI — i reviewed. *@
+
 <h1>@ViewData["Title"]</h1>
 
-@* after redirect from successful save TempData has one message then it clears *@
 @if (TempData["Message"] is string msg)
 {
     <div class="alert alert-success">@msg</div>
 }
 
-@* ModelOnly = show errors that arent tied to one field (e.g. workflow exception message) *@
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-@* post goes to ServiceRequestController.Create POST - must match antiforgery token *@
 <form asp-controller="ServiceRequest" asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
     <div class="mb-3">
         <label asp-for="ContractId" class="form-label"></label>
-        @* asp-items comes from controller ViewBag.ContractId SelectList *@
         <select asp-for="ContractId" asp-items="ViewBag.ContractId" class="form-select"></select>
         <span asp-validation-for="ContractId" class="text-danger"></span>
     </div>
@@ -32,9 +30,11 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="Cost" class="form-label"></label>
-        <input asp-for="Cost" class="form-control" />
-        <span asp-validation-for="Cost" class="text-danger"></span>
+        <label asp-for="CostUsd" class="form-label"></label>
+        <input asp-for="CostUsd" class="form-control" id="costUsd" type="number" step="0.01" min="0.01" />
+        <span asp-validation-for="CostUsd" class="text-danger"></span>
+        <div class="form-text" id="zarPreview">ZAR (saved): —</div>
+        <div class="form-text text-muted" id="rateInfo">Loading rate…</div>
     </div>
 
     <button type="submit" class="btn btn-primary">Save</button>
@@ -42,4 +42,33 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    @* fetch = browser calls my JSON action; Save still recalculates ZAR on the server *@
+    <script>
+        (function () {
+            var usdInput = document.getElementById('costUsd');
+            var zarPreview = document.getElementById('zarPreview');
+            var rateInfo = document.getElementById('rateInfo');
+            var zarPerUsd = null;
+
+            fetch('@Url.Action("UsdToZarRate", "ServiceRequest")')
+                .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+                .then(function (data) {
+                    zarPerUsd = data.zarPerUsd;
+                    rateInfo.textContent = '1 USD = ' + zarPerUsd.toFixed(4) + ' ZAR';
+                    updateZar();
+                })
+                .catch(function () {
+                    rateInfo.textContent = 'Rate not loaded in browser — Save may still work.';
+                });
+
+            function updateZar() {
+                if (zarPerUsd == null || !usdInput) return;
+                var usd = parseFloat(usdInput.value);
+                if (isNaN(usd) || usd <= 0) { zarPreview.textContent = 'ZAR (saved): —'; return; }
+                zarPreview.textContent = 'ZAR (saved): ' + (usd * zarPerUsd).toFixed(2) + ' (preview)';
+            }
+
+            usdInput.addEventListener('input', updateZar);
+        })();
+    </script>
 }
