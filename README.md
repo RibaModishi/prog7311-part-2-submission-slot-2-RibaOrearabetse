@@ -10,6 +10,7 @@ I built a logistics management web application in ASP.NET Core MVC where staff c
 - **Student Name:** Orearabetse Riba
 - **Student Number:** ST10446648
 - **Repository:** (https://github.com/EMGPRS/prog7311-part-2-submission-slot-2-RibaOrearabetse)
+-  **Youtube:** https://youtu.be/9aLdW_ukaKQ
 
 ---
 
