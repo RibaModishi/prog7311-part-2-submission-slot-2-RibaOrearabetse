@@ -62,3 +62,8 @@ namespace GLMS.Services
         }
     }
 }
+
+// References (accessed 20 Apr 2026):
+// - LINQ basic operations: https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/basic-linq-query-operations
+// - EF Core querying data: https://learn.microsoft.com/en-us/ef/core/querying/
+// - EF Core related data Include(): https://learn.microsoft.com/en-us/ef/core/querying/related-data/

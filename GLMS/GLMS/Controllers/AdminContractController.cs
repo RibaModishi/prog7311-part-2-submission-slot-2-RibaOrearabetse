@@ -33,3 +33,8 @@ public class AdminContractsController : Controller
         return View(list);
     }
 }
+
+// References (accessed 20 Apr 2026):
+// - ASP.NET Core controller actions: https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/actions
+// - ASP.NET Core authorization intro: https://learn.microsoft.com/en-us/aspnet/core/security/authorization/introduction
+// - Role-based authorization (context for admin-only option): https://learn.microsoft.com/en-us/aspnet/core/security/authorization/roles

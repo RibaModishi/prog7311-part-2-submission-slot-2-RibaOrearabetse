@@ -21,3 +21,7 @@ public class CreateServiceRequestViewModel
 
     public ServiceRequestStatus Status { get; set; } = ServiceRequestStatus.Submitted;
 }
+
+// References (accessed 20 Apr 2026):
+// - ASP.NET Core model validation: https://learn.microsoft.com/en-us/aspnet/core/mvc/models/validation
+// - DataAnnotations in .NET (attributes): https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations

@@ -35,3 +35,7 @@ namespace GLMS.Services
         }
     }
 }
+
+// References (accessed 20 Apr 2026):
+// - EF Core querying data: https://learn.microsoft.com/en-us/ef/core/querying/
+// - ASP.NET Core controllers and actions: https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/actions

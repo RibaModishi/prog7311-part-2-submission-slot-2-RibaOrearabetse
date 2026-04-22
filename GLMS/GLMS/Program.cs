@@ -61,3 +61,9 @@ namespace GLMS
         }
     }
 }
+
+// References (accessed 18-20 Apr 2026):
+// - DbContext configuration & DI: https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/
+// - ASP.NET Core dependency injection: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection
+// - IHttpClientFactory in ASP.NET Core: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/http-requests
+// - Authorization in ASP.NET Core: https://learn.microsoft.com/en-us/aspnet/core/security/authorization/introduction

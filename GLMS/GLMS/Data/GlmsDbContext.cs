@@ -70,3 +70,9 @@ public class GlmsDbContext : DbContext
         });
     }
 }
+
+// References (accessed 18 Apr 2026):
+// - EF Core model building: https://learn.microsoft.com/en-us/ef/core/modeling/
+// - EF Core relationships: https://learn.microsoft.com/en-us/ef/core/modeling/relationships
+// - EF Core indexes: https://learn.microsoft.com/en-us/ef/core/modeling/indexes
+// - SQL Server value precision in EF Core: https://learn.microsoft.com/en-us/ef/core/modeling/entity-properties

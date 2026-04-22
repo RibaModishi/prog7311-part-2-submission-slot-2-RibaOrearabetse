@@ -108,3 +108,9 @@ public class ServiceRequestController : Controller
         ViewBag.ContractId = new SelectList(contracts, "ContractId", "Label", vm.ContractId);
     }
 }
+
+// References (accessed 20 Apr 2026):
+// - ASP.NET Core controller actions: https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/actions
+// - ASP.NET Core model binding: https://learn.microsoft.com/en-us/aspnet/core/mvc/models/model-binding
+// - ASP.NET Core model validation: https://learn.microsoft.com/en-us/aspnet/core/mvc/models/validation
+// - Anti-forgery in ASP.NET Core: https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery
