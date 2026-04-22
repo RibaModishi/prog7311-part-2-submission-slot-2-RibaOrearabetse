@@ -9,7 +9,7 @@ I built a logistics management web application in ASP.NET Core MVC where staff c
 - **Assessment:** POE Part 2
 - **Student Name:** Orearabetse Riba
 - **Student Number:** ST10446648
-- **Repository:** `<Your GitHub Repo URL>`
+- **Repository:** (https://github.com/EMGPRS/prog7311-part-2-submission-slot-2-RibaOrearabetse)
 
 ---
 
