@@ -1,15 +1,14 @@
-```md
 # GLMS (General Logistics Management System)
 
-This is my PROG7311 Part 2 submission project.  
-I built a logistics management web app in ASP.NET Core MVC where staff can manage clients, contracts, and service requests, with business rules, API integration, and unit testing.
+This is my PROG7311 POE Part 2 submission project.  
+I built a logistics management web application in ASP.NET Core MVC where staff can manage clients, contracts, and service requests with business rules, API integration, and unit testing.
 
 ## Student Details
 
-- **Module:** PROG7311  
-- **Assessment:** POE Part 2  
-- **Student Name:** Orearabetse Riba  
-- **Student Number:** ST10446648  
+- **Module:** PROG7311
+- **Assessment:** POE Part 2
+- **Student Name:** Orearabetse Riba
+- **Student Number:** ST10446648
 - **Repository:** `<Your GitHub Repo URL>`
 
 ---
@@ -21,21 +20,21 @@ GLMS is an internal system for managing:
 - Client records
 - Contract lifecycle and status
 - Service requests linked to contracts
-- Currency conversion for USD input to ZAR output
+- Currency conversion from USD input to ZAR output
 - Admin contract filtering by date range and status
 
-I used Entity Framework Core (Code First), SQL Server, and ASP.NET Core MVC with Razor views.
+This project uses Entity Framework Core (Code First), SQL Server, and ASP.NET Core MVC with Razor views.
 
 ---
 
 ## Tech Stack
 
-- **.NET / ASP.NET Core MVC**
-- **Entity Framework Core (Code First)**
-- **SQL Server (SQLEXPRESS)**
-- **Razor Views + Bootstrap**
-- **xUnit** for unit testing
-- **Frankfurter API** for exchange rate data
+- .NET / ASP.NET Core MVC
+- Entity Framework Core (Code First)
+- SQL Server (SQLEXPRESS)
+- Razor Views + Bootstrap
+- xUnit (unit testing)
+- Frankfurter API (exchange rate data)
 
 ---
 
@@ -43,28 +42,28 @@ I used Entity Framework Core (Code First), SQL Server, and ASP.NET Core MVC with
 
 ## 1) Core Data + Database Design
 
-- Models created for `Client`, `Contract`, `ServiceRequest`
-- Enums for status fields (`ContractStatus`, `ServiceRequestStatus`)
-- `GlmsDbContext` configured with Fluent API:
+- Created models for `Client`, `Contract`, and `ServiceRequest`
+- Added enum statuses (`ContractStatus`, `ServiceRequestStatus`)
+- Configured `GlmsDbContext` with Fluent API:
   - keys
-  - required/length rules
+  - required and length rules
   - relationships
   - indexes
   - decimal precision for money
-- EF migration used to generate and apply schema to SQL Server
+- Used EF migration to generate and apply schema to SQL Server
 
 ---
 
 ## 2) Workflow Logic
 
 - Enforced business rule:
-  - A `ServiceRequest` cannot be created if parent contract is `Expired` or `OnHold`
+  - a `ServiceRequest` cannot be created if the parent contract is `Expired` or `OnHold`
 - Implemented in service layer (`ServiceRequestWorkflowService`)
-- Called in `ServiceRequestController` before save
+- Called from `ServiceRequestController` before saving
 - Added admin search/filter with LINQ (`ContractQueryService`):
-  - filter by contract status
+  - filter by status
   - filter by date range
-  - combined filter logic
+  - combine both filters
 
 ---
 
@@ -72,12 +71,12 @@ I used Entity Framework Core (Code First), SQL Server, and ASP.NET Core MVC with
 
 - Integrated external currency API using `HttpClient`
 - Endpoint used: Frankfurter (`USD -> ZAR`)
-- On create service request page:
+- On the create service request page:
   - user enters **USD** amount
   - system retrieves current USD/ZAR rate
-  - UI shows conversion preview
+  - UI shows a conversion preview
   - server converts and saves final cost in **ZAR**
-- Added handling if API is unavailable (validation message shown, save blocked)
+- Added handling when API is unavailable (validation message shown and save blocked)
 
 ---
 
@@ -88,22 +87,19 @@ A separate test project was created: `GLMS.Tests` using **xUnit**.
 Tested business logic includes:
 
 - **Currency conversion**
-  - correct math result for known inputs
+  - correct math output for known inputs
   - rounding behavior
   - invalid input handling (negative amount / invalid rate)
 - **File validation**
   - allows `.pdf`
   - rejects restricted types like `.exe`, `.png`, `.txt`
-  - rejects empty file name
+  - rejects empty file names
 
 Current test result: **11 tests passed**.
 
 ### Unit Test Evidence
 
-Add your screenshot here (the one you already captured).
-
-```md
-![Unit tests passing]<img width="1918" height="432" alt="image" src="https://github.com/user-attachments/assets/e02a121f-0dde-4b33-85cd-92342c0c1d1f" />
+![Unit tests passing](https://github.com/user-attachments/assets/e02a121f-0dde-4b33-85cd-92342c0c1d1f)
 
 ```
 
