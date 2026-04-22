@@ -103,7 +103,8 @@ Current test result: **11 tests passed**.
 Add your screenshot here (the one you already captured).
 
 ```md
-![Unit tests passing](<paste-image-url-or-repo-path-here>)
+![Unit tests passing]<img width="1918" height="432" alt="image" src="https://github.com/user-attachments/assets/e02a121f-0dde-4b33-85cd-92342c0c1d1f" />
+
 ```
 
 ---
